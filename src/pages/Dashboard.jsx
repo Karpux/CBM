@@ -1,6 +1,8 @@
 import { BarChart3, BookOpen, Calendar, HandHeart, ListChecks, Shield, Users } from 'lucide-react'
 import { Badge } from '../components/common/Badge'
+import { BarChart } from '../components/common/BarChart'
 import { EmptyState } from '../components/common/EmptyState'
+import { KpiCard } from '../components/common/KpiCard'
 import { Panel } from '../components/common/Panel'
 import { EventForm } from '../components/dashboard/EventForm'
 import { MetricsForm } from '../components/dashboard/MetricsForm'
@@ -33,6 +35,17 @@ export const Dashboard = () => {
     { label: 'Seguimientos críticos', value: metrics?.followups ?? openVisits, trend: 'En revisión' },
     { label: 'Visitantes nuevos', value: metrics?.visitors ?? 0, trend: 'Esta semana' },
     { label: 'Células activas', value: metrics?.active_cells ?? 0, trend: 'En operación' },
+  ]
+
+  const taskStatusData = [
+    { label: 'Pendientes', value: tasks.filter((task) => task.status !== 'done').length, color: 'rgb(42 125 112)' },
+    { label: 'Completadas', value: tasks.filter((task) => task.status === 'done').length, color: 'rgb(216 150 66)' },
+  ]
+
+  const eventTypeData = [
+    { label: 'Reuniones', value: events.filter((event) => event.event_type === 'meeting').length, color: 'rgb(42 125 112)' },
+    { label: 'Visitas', value: events.filter((event) => event.event_type === 'visit').length, color: 'rgb(216 150 66)' },
+    { label: 'Formación', value: events.filter((event) => event.event_type === 'training').length, color: 'rgb(72 133 185)' },
   ]
 
   const handleCreateTask = async (payload) => {
@@ -112,12 +125,14 @@ export const Dashboard = () => {
           </div>
         ) : null}
         <section className="grid gap-4 lg:grid-cols-4">
-          {metricCards.map((metric) => (
-            <div key={metric.label} className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
-              <p className="text-xs font-semibold uppercase text-muted">{metric.label}</p>
-              <p className="mt-3 text-3xl font-semibold text-ink">{loading ? '...' : metric.value}</p>
-              <p className="mt-2 text-xs text-brand">{metric.trend}</p>
-            </div>
+          {metricCards.map((metric, index) => (
+            <KpiCard
+              key={metric.label}
+              label={metric.label}
+              value={loading ? '...' : metric.value}
+              trend={metric.trend}
+              delay={index * 0.06}
+            />
           ))}
         </section>
 
@@ -220,6 +235,15 @@ export const Dashboard = () => {
               <span>Plan de oración 21 días</span>
               <Badge tone="neutral">PDF</Badge>
             </div>
+          </Panel>
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-2">
+          <Panel title="Estado de tareas" description="Distribución actual">
+            <BarChart data={taskStatusData} />
+          </Panel>
+          <Panel title="Tipos de eventos" description="Resumen operativo">
+            <BarChart data={eventTypeData} />
           </Panel>
         </section>
 
